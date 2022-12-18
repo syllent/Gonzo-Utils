@@ -6,89 +6,102 @@ import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.facebook.applinks.AppLinkData
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
-import io.reactivex.rxjava3.core.Single
 import okhttp3.HttpUrl
 import java.util.*
 
-inline fun<reified G: Gonzo<*>> Context.gonzoBattle(): Single<G> {
-    with (G::class.java) {
-        return Single.create { emitter ->
-            when {
-                isAssignableFrom(KnightGonzo::class.java) -> {
-                    AppLinkData
-                        .fetchDeferredAppLinkData(
-                            this@gonzoBattle
-                        ) { appLinkData: AppLinkData? ->
-                            emitter.onSuccess(
-                                KnightGonzo(
-                                    data = appLinkData?.targetUri.toString()
-                                ) as G
-                            )
-                        }
-                }
-                isAssignableFrom(ReptilesGonzo::class.java) -> {
-                    val appsFlyerLib = AppsFlyerLib.getInstance()
-                    val conversionListener = object : AppsFlyerConversionListener {
-                        override fun onConversionDataSuccess(convData: MutableMap<String, Any>?) {
-                            emitter.onSuccess(
-                                ReptilesGonzo(
-                                    data = listOf(
-                                        convData?.get("media_source").toString(),
-                                        convData?.get("campaign").toString(),
-                                        convData?.get("adset_id").toString(),
-                                        convData?.get("campaign_id").toString(),
-                                        convData?.get("adset").toString(),
-                                        convData?.get("adgroup").toString(),
-                                        convData?.get("orig_cost").toString(),
-                                        convData?.get("af_siteid").toString(),
-                                        appsFlyerLib.getAppsFlyerUID(
-                                            this@gonzoBattle
-                                        ).toString()
-                                    )
-                                ) as G
-                            )
-                        }
-                        override fun onConversionDataFail(p0: String?) {
-                            emitter.onSuccess(
-                                ReptilesGonzo(
-                                    data = List(9) { "null" }
-                                ) as G
-                            )
-                        }
-                        override fun onAppOpenAttribution(p0: MutableMap<String, String>?) { }
-                        override fun onAttributionFailure(p0: String?) { }
-                    }
-                    appsFlyerLib.init(
-                        getStr("punch"),
-                        conversionListener,
-                        this@gonzoBattle
+fun Context.battleKnight(
+    callback: (KnightGonzo) -> Unit
+) {
+    var isDone = false
+    AppLinkData
+        .fetchDeferredAppLinkData(
+            this
+        ) { appLinkData: AppLinkData? ->
+            if (!isDone) {
+                isDone = true
+                callback.invoke(
+                    KnightGonzo(
+                        data = appLinkData?.targetUri.toString()
                     )
-                    appsFlyerLib.start(this@gonzoBattle)
-                }
-                isAssignableFrom(BearGonzo::class.java) -> {
-                    emitter.onSuccess(
-                        BearGonzo(
-                            data = AdvertisingIdClient
-                                .getAdvertisingIdInfo(this@gonzoBattle)
-                                .id.toString()
-                        ) as G
-                    )
-                }
-                isAssignableFrom(DragonGonzo::class.java) -> {
-                    emitter.onSuccess(
-                        DragonGonzo(
-                            data = Settings.Global
-                                .getString(
-                                    contentResolver,
-                                    Settings.Global.ADB_ENABLED
-                                ) != "1"
-                        ) as G
-                    )
-                }
-                else -> emitter.onError(Throwable("Invalid type"))
+                )
             }
         }
+}
+
+fun Context.battleBear(
+    callback: (BearGonzo) -> Unit
+) {
+    callback.invoke(
+        BearGonzo(
+            data = AdvertisingIdClient
+                .getAdvertisingIdInfo(this)
+                .id.toString()
+        )
+    )
+}
+
+fun Context.battleDragon(
+    callback: (DragonGonzo) -> Unit
+) {
+    callback.invoke(
+        DragonGonzo(
+            data = Settings.Global
+                .getString(
+                    contentResolver,
+                    Settings.Global.ADB_ENABLED
+                ) != "1"
+        )
+    )
+}
+
+fun Context.battleReptiles(
+    callback: (ReptilesGonzo) -> Unit
+) {
+    var isDone = false
+    val appsFlyerLib = AppsFlyerLib.getInstance()
+    val conversionListener = object : AppsFlyerConversionListener {
+        override fun onConversionDataSuccess(convData: MutableMap<String, Any>?) {
+            if (!isDone) {
+                isDone = true
+                callback.invoke(
+                    ReptilesGonzo(
+                        data = listOf(
+                            convData?.get("media_source").toString(),
+                            convData?.get("campaign").toString(),
+                            convData?.get("adset_id").toString(),
+                            convData?.get("campaign_id").toString(),
+                            convData?.get("adset").toString(),
+                            convData?.get("adgroup").toString(),
+                            convData?.get("orig_cost").toString(),
+                            convData?.get("af_siteid").toString(),
+                            appsFlyerLib.getAppsFlyerUID(
+                                this@battleReptiles
+                            ).toString()
+                        )
+                    )
+                )
+            }
+
+        }
+        override fun onConversionDataFail(p0: String?) {
+            if (!isDone) {
+                isDone = true
+                callback.invoke(
+                    ReptilesGonzo(
+                        data = List(9) { "null" }
+                    )
+                )
+            }
+        }
+        override fun onAppOpenAttribution(p0: MutableMap<String, String>?) { }
+        override fun onAttributionFailure(p0: String?) { }
     }
+    appsFlyerLib.init(
+        getStr("punch"),
+        conversionListener,
+        this
+    )
+    appsFlyerLib.start(this)
 }
 
 fun Context.getStr(name: String): String {
