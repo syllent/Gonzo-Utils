@@ -1,7 +1,7 @@
 package com.xtianxian.utils
 
-sealed class Gonzo<D: Any>(val data: D)
-class KnightGonzo(data: String) : Gonzo<String>(data = data)
-class ReptilesGonzo(data: List<String>) : Gonzo<List<String>>(data = data)
-class BearGonzo(data: String) : Gonzo<String>(data = data)
-class DragonGonzo(data: Boolean) : Gonzo<Boolean>(data = data)
+sealed interface Gonzo
+class KnightGonzo(val data: String) : Gonzo
+class ReptilesGonzo(val data: List<String>) : Gonzo
+class BearGonzo(val data: String) : Gonzo
+class DragonGonzo(val data: Boolean) : Gonzo
