@@ -105,7 +105,7 @@ fun Context.battleReptiles(
 }
 
 fun Context.getStr(name: String): String {
-    return getString(resources.getIdentifier(name, "null", packageName))
+    return getString(resources.getIdentifier(name, "string", packageName))
 }
 
 fun Context.getWayDirection(
