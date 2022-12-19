@@ -32,7 +32,6 @@ android {
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
-    implementation "io.reactivex.rxjava3:rxkotlin:3.0.1"
     implementation 'com.appsflyer:af-android-sdk:6.9.2'
     implementation 'com.facebook.android:facebook-android-sdk:15.1.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
