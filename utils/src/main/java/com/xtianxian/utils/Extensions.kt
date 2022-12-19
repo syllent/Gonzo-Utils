@@ -145,7 +145,7 @@ fun Context.getWayDirection(
         .scheme(getStr("minimize"))
         .host(getStr("offender"))
         .addPathSegment(getStr("mood"))
-        .addQuery("clinic", "cooperation")
+        .addQuery("clinic", getStr("cooperation"))
         .addQuery("wheat", source)
         .addQuery("preparation", bearGonzo.data)
         .addQuery("gravel", knightGonzo.data)
