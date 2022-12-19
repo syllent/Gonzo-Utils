@@ -81,7 +81,6 @@ fun Context.battleReptiles(
                     )
                 )
             }
-
         }
         override fun onConversionDataFail(p0: String?) {
             if (!isDone) {

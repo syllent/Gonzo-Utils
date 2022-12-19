@@ -1,56 +1,52 @@
 package com.xtianxian.utils
 
-import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
-import android.database.SQLException
-import android.database.sqlite.SQLiteDatabase
 
 class GonzoDbRepository(
     private val context: Context
 ) {
 
-    private var dbHelper: GonzoDbHelper? = null
-    private var database: SQLiteDatabase? = null
+    private val gonzoDatabase: GonzoDatabase = GonzoDatabase(context)
 
-    @Throws(SQLException::class)
-    fun open(): GonzoDbRepository {
-        dbHelper = GonzoDbHelper(context)
-        database = dbHelper!!.writableDatabase
-        return this
+    init {
+        gonzoDatabase.open()
     }
 
     fun close() {
-        dbHelper!!.close()
+        gonzoDatabase.close()
     }
 
-    fun insert(gonzo: String, isLeader: Int) {
-        val contentValue = ContentValues()
-        contentValue.put(GonzoDbHelper.GONZO, gonzo)
-        contentValue.put(GonzoDbHelper.IS_LEADER, isLeader)
-        database!!.insert(
-            GonzoDbHelper.TABLE_NAME,
-            null,
-            contentValue
-        )
+    val exist: Boolean
+        get() {
+            gonzoDatabase.fetch()
+                .use {
+                    return it?.count != 0
+                }
+        }
+
+    fun getGonzo(): String? {
+        gonzoDatabase.fetch()
+            .use {
+                return if (it != null && it.count != 0) {
+                    it.getString(1)
+                } else {
+                    null
+                }
+            }
     }
 
-    fun fetch(): Cursor? {
-        val columns = arrayOf(
-            GonzoDbHelper.ID,
-            GonzoDbHelper.GONZO,
-            GonzoDbHelper.IS_LEADER
-        )
-        val cursor = database!!.query(
-            GonzoDbHelper.TABLE_NAME,
-            columns,
-            null,
-            null,
-            null,
-            null,
-            null
-        )
-        cursor?.moveToFirst()
-        return cursor
+    fun getIsLeader(): Int? {
+        gonzoDatabase.fetch()
+            .use {
+                return if (it != null && it.count != 0) {
+                    it.getInt(2)
+                } else {
+                    null
+                }
+            }
+    }
+
+    fun add(gonzo: String, isLeader: Int) {
+        gonzoDatabase.insert(gonzo, isLeader)
     }
 }

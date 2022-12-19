@@ -7,9 +7,9 @@ import android.os.Message
 import android.webkit.*
 
 @SuppressLint("SetJavaScriptEnabled")
-class ViewSetup(
+class GonzoSetup(
     private val view: WebView,
-    private val viewCallback: ViewCallback
+    private val gonzoCallback: GonzoCallback
 ) {
 
     private val baseUrl = with(view.context) {
@@ -60,8 +60,8 @@ class ViewSetup(
             filePathCallback: ValueCallback<Array<Uri?>>?,
             fileChooserParams: FileChooserParams?
         ): Boolean {
-            viewCallback.onFileChoose(
-                valueCallback = filePathCallback
+            gonzoCallback.onFileChoose(
+                callback = filePathCallback
             )
             return true
         }
@@ -90,19 +90,13 @@ class ViewSetup(
     private fun checkUrl(url: String?) {
         when {
             url == baseUrl -> {
-                viewCallback.onEmpty()
+                gonzoCallback.onEmpty()
             }
             url?.contains(baseUrl) == false -> {
-                viewCallback.onDataSave(
+                gonzoCallback.onDataSave(
                     data = url
                 )
             }
         }
     }
-}
-
-interface ViewCallback {
-    fun onDataSave(data: String?)
-    fun onFileChoose(valueCallback: ValueCallback<Array<Uri?>>?)
-    fun onEmpty()
 }
