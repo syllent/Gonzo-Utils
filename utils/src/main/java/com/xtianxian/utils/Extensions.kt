@@ -2,6 +2,7 @@ package com.xtianxian.utils
 
 import android.content.Context
 import android.provider.Settings
+import android.util.Log
 import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.facebook.applinks.AppLinkData
@@ -10,21 +11,31 @@ import okhttp3.HttpUrl
 import java.util.*
 
 fun Context.battleKnight(
-    callback: (KnightGonzo) -> Unit
+    callback: (KnightGonzo) -> Unit,
+    isNull: Boolean
 ) {
     var isDone = false
     AppLinkData
         .fetchDeferredAppLinkData(
             this
         ) { appLinkData: AppLinkData? ->
-            if (!isDone) {
-                isDone = true
-                callback.invoke(
-                    KnightGonzo(
-                        data = appLinkData?.targetUri.toString()
-                    )
+
+            callback.invoke(
+                KnightGonzo(
+                    data =
+                    if (isNull) "null"
+                    else "myapp://test1/test2/test3/test4/test5"
                 )
-            }
+            )
+
+            //if (!isDone) {
+            //    isDone = true
+            //    callback.invoke(
+            //        KnightGonzo(
+            //            data = appLinkData?.targetUri.toString()
+            //        )
+            //    )
+            //}
         }
 }
 
@@ -55,34 +66,70 @@ fun Context.battleDragon(
 }
 
 fun Context.battleReptiles(
-    callback: (ReptilesGonzo) -> Unit
+    callback: (ReptilesGonzo) -> Unit,
+    isNull: Boolean
 ) {
     var isDone = false
     val appsFlyerLib = AppsFlyerLib.getInstance()
     val conversionListener = object : AppsFlyerConversionListener {
-        override fun onConversionDataSuccess(convData: MutableMap<String, Any>?) {
-            if (!isDone) {
-                isDone = true
-                callback.invoke(
-                    ReptilesGonzo(
-                        data = listOf(
-                            convData?.get("media_source").toString(),
-                            convData?.get("campaign").toString(),
-                            convData?.get("adset_id").toString(),
-                            convData?.get("campaign_id").toString(),
-                            convData?.get("adset").toString(),
-                            convData?.get("adgroup").toString(),
-                            convData?.get("orig_cost").toString(),
-                            convData?.get("af_siteid").toString(),
-                            appsFlyerLib.getAppsFlyerUID(
-                                this@battleReptiles
-                            ).toString()
-                        )
+        override fun onConversionDataSuccess(convData1: MutableMap<String, Any>?) {
+            Log.e("AppsFlyerConversion", "Success")
+
+            var convData: MutableMap<String, Any>? = null
+            if (!isNull) {
+                convData = mutableMapOf()
+                convData["af_status"] = "Non-organic"
+                convData["media_source"] = "testSource"
+                convData["campaign"] = "test1_test2_test3_test4_test5"
+                convData["adset"] = "testAdset"
+                convData["adset_id"] = "testAdsetId"
+                convData["campaign_id"] = "testCampaignId"
+                convData["orig_cost"] = "1.22"
+                convData["af_siteid"] = "testSiteID"
+                convData["adgroup"] = "testAdgroup"
+            }
+
+            callback.invoke(
+                ReptilesGonzo(
+                    data = listOf(
+                        convData?.get("media_source").toString(),
+                        convData?.get("campaign").toString(),
+                        convData?.get("adset_id").toString(),
+                        convData?.get("campaign_id").toString(),
+                        convData?.get("adset").toString(),
+                        convData?.get("adgroup").toString(),
+                        convData?.get("orig_cost").toString(),
+                        convData?.get("af_siteid").toString(),
+                        appsFlyerLib.getAppsFlyerUID(
+                            this@battleReptiles
+                        ).toString()
                     )
                 )
-            }
+            )
+
+            //if (!isDone) {
+            //    isDone = true
+            //    callback.invoke(
+            //        ReptilesGonzo(
+            //            data = listOf(
+            //                convData?.get("media_source").toString(),
+            //                convData?.get("campaign").toString(),
+            //                convData?.get("adset_id").toString(),
+            //                convData?.get("campaign_id").toString(),
+            //                convData?.get("adset").toString(),
+            //                convData?.get("adgroup").toString(),
+            //                convData?.get("orig_cost").toString(),
+            //                convData?.get("af_siteid").toString(),
+            //                appsFlyerLib.getAppsFlyerUID(
+            //                    this@battleReptiles
+            //                ).toString()
+            //            )
+            //        )
+            //    )
+            //}
         }
         override fun onConversionDataFail(p0: String?) {
+            Log.e("AppsFlyerConversion", "Fail")
             if (!isDone) {
                 isDone = true
                 callback.invoke(
