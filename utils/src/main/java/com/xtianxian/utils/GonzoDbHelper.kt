@@ -39,6 +39,6 @@ class GonzoDbHelper(
 
         // Creating table query
         private const val CREATE_TABLE = ("create table " + TABLE_NAME + "(" + ID
-                + " INTEGER PRIMARY KEY AUTOINCREMENT, " + GONZO + " TEXT NOT NULL, " + IS_LEADER + " BOOLEAN);")
+                + " INTEGER PRIMARY KEY AUTOINCREMENT, " + GONZO + " TEXT NOT NULL, " + IS_LEADER + " INT);")
     }
 }

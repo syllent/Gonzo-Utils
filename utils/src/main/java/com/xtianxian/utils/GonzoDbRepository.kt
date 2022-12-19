@@ -24,10 +24,10 @@ class GonzoDbRepository(
         dbHelper!!.close()
     }
 
-    fun insert(name: String, desc: Boolean) {
+    fun insert(gonzo: String, isLeader: Int) {
         val contentValue = ContentValues()
-        contentValue.put(GonzoDbHelper.GONZO, name)
-        contentValue.put(GonzoDbHelper.IS_LEADER, desc)
+        contentValue.put(GonzoDbHelper.GONZO, gonzo)
+        contentValue.put(GonzoDbHelper.IS_LEADER, isLeader)
         database!!.insert(
             GonzoDbHelper.TABLE_NAME,
             null,
